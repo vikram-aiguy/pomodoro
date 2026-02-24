@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZenFocus | Pomodoro & Tasks</title>
+    <title>Mini PomoDoro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -228,7 +228,6 @@
         .short-btn { background-color: var(--accent-short); }
         .long-btn { background-color: var(--accent-long); }
 
-        /* Modernized Task Column */
         .tasks-column {
             width: 100%;
             height: 480px; 
@@ -238,14 +237,8 @@
             transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .tasks-column:not(.has-content) .tasks-inner-wrapper {
-            transform: translateY(-28px); 
-        }
-
-        .tasks-column.has-content {
-            justify-content: start;
-            padding-top: 74px;
-        }
+        .tasks-column:not(.has-content) .tasks-inner-wrapper { transform: translateY(-28px); }
+        .tasks-column.has-content { justify-content: start; padding-top: 74px; }
 
         .tasks-inner-wrapper {
             width: 100%;
@@ -255,7 +248,6 @@
             transition: all 0.5s ease;
         }
 
-        /* Minimal Modern Input */
         .task-input {
             background: var(--toggle-bg);
             border: 1px solid transparent;
@@ -267,35 +259,17 @@
             outline: none;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.95rem;
-            /* Subtler appearance */
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .task-input::placeholder {
-            color: var(--text-muted);
-            opacity: 0.6;
-            transition: opacity 0.3s ease;
-        }
-
-        .task-input:hover {
-            background: var(--bg-color);
-            border-color: rgba(0,0,0,0.05);
         }
 
         .task-input:focus {
             border-color: var(--current-accent);
             background: var(--bg-color);
-            /* Refined minimal glow */
             box-shadow: 0 0 0 4px var(--glow-color);
             transform: translateY(-1px);
         }
 
-        .task-list {
-            max-height: 320px;
-            overflow-y: auto;
-            padding: 0.5rem;
-            margin: 0 -0.5rem;
-        }
+        .task-list { max-height: 320px; overflow-y: auto; padding: 0.5rem; margin: 0 -0.5rem; }
 
         .task-item {
             display: flex;
@@ -307,9 +281,7 @@
             animation: task-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
-        .task-item:hover {
-            background: var(--toggle-bg);
-        }
+        .task-item:hover { background: var(--toggle-bg); }
 
         @keyframes task-in {
             from { opacity: 0; transform: translateX(10px); }
@@ -330,53 +302,26 @@
             position: relative;
         }
 
-        .task-item:hover .checkbox-custom {
-            opacity: 1;
-            border-color: var(--current-accent);
-        }
-
-        .completed .checkbox-custom { 
-            background-color: var(--current-accent); 
-            border-color: var(--current-accent); 
-            opacity: 1;
-        }
-
+        .task-item:hover .checkbox-custom { opacity: 1; border-color: var(--current-accent); }
+        .completed .checkbox-custom { background-color: var(--current-accent); border-color: var(--current-accent); opacity: 1; }
         .completed .checkbox-custom::after {
             content: '✓'; color: white; position: absolute; font-size: 11px; top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
 
-        /* Generic Modal Styles */
         .modal-overlay {
-            position: fixed; 
-            inset: 0; 
-            background: rgba(0, 0, 0, 0.3); 
-            backdrop-filter: blur(12px); 
-            z-index: 100;
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(12px); z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease;
             overflow: visible; 
         }
 
         .modal-overlay.active { opacity: 1; visibility: visible; pointer-events: auto; }
 
         .modal-card {
-            background: var(--bg-color); 
-            padding: 2.5rem; 
-            border-radius: 2.5rem; 
-            width: 90%; 
-            max-width: 420px; 
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
-            color: var(--text-main);
+            background: var(--bg-color); padding: 2.5rem; border-radius: 2.5rem; width: 90%; max-width: 420px; 
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2); color: var(--text-main);
             transition: background-color 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            transform: scale(0.9) translateY(20px);
-            display: flex;
-            flex-direction: column;
-            overflow: visible; 
+            transform: scale(0.9) translateY(20px); display: flex; flex-direction: column; overflow: visible; 
         }
 
         .modal-overlay.active .modal-card { transform: scale(1) translateY(0); }
@@ -387,37 +332,14 @@
         .settings-input:focus { border-color: var(--current-accent); }
         .settings-label { text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; font-size: 0.65rem; color: var(--text-muted); margin-bottom: 0.4rem; }
 
-        .info-step { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
-        .info-step-num { color: var(--current-accent); font-weight: 800; font-size: 0.75rem; padding-top: 0.2rem; }
-        .info-step-text strong { display: block; font-size: 1rem; margin-bottom: 0.25rem; }
-        .info-step-text p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
-
         .save-btn {
-            display: block;
-            width: fit-content;
-            min-width: 154px; 
-            margin: 1.5rem auto 0 auto;
-            padding: 0.9rem 2.2rem; 
-            border-radius: 1.1rem;
-            background: var(--current-accent);
-            color: white;
-            font-weight: 800;
-            font-size: 0.95rem; 
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            box-shadow: 0 4px 10px -2px var(--glow-color);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            border: none;
-            outline: none;
-            position: relative;
-            z-index: 10;
+            display: block; width: fit-content; min-width: 154px; margin: 1.5rem auto 0 auto; padding: 0.9rem 2.2rem; 
+            border-radius: 1.1rem; background: var(--current-accent); color: white; font-weight: 800; font-size: 0.95rem; 
+            text-transform: uppercase; letter-spacing: 0.12em; box-shadow: 0 4px 10px -2px var(--glow-color);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; border: none; outline: none; position: relative; z-index: 10;
         }
 
-        .save-btn:hover {
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 0 12px 0px var(--glow-color), 0 6px 20px 2px var(--glow-color);
-        }
+        .save-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 0 12px 0px var(--glow-color), 0 6px 20px 2px var(--glow-color); }
 
         .top-controls { position: fixed; top: 2rem; right: 2rem; display: flex; gap: 0.75rem; z-index: 50; }
         .icon-btn {
@@ -461,22 +383,10 @@
     <div id="info-modal" class="modal-overlay" onclick="closeModal('info-modal')">
         <div class="modal-card" onclick="event.stopPropagation()">
             <h2 class="font-extrabold text-2xl mb-8 tracking-tight text-center">How Pomodoro Works</h2>
-            <div class="info-step">
-                <span class="info-step-num">01</span>
-                <div class="info-step-text"><strong>Pick a Task</strong><p>Focus on one single goal at a time. Multi-tasking is the enemy of deep work.</p></div>
-            </div>
-            <div class="info-step">
-                <span class="info-step-num">02</span>
-                <div class="info-step-text"><strong>Start Timer</strong><p>Set the clock to 25 minutes. Immerse yourself completely until the alarm rings.</p></div>
-            </div>
-            <div class="info-step">
-                <span class="info-step-num">03</span>
-                <div class="info-step-text"><strong>Take a Breath</strong><p>Take a 5-minute break to recharge. Stretch, move, or grab some water.</p></div>
-            </div>
-            <div class="info-step">
-                <span class="info-step-num">04</span>
-                <div class="info-step-text"><strong>Deep Reset</strong><p>After 4 sessions, take a longer 15-30 minute break to fully reset your mind.</p></div>
-            </div>
+            <div class="info-step"><span class="info-step-num">01</span><div class="info-step-text"><strong>Pick a Task</strong><p>Focus on one single goal at a time. Multi-tasking is the enemy of deep work.</p></div></div>
+            <div class="info-step"><span class="info-step-num">02</span><div class="info-step-text"><strong>Start Timer</strong><p>Set the clock to 25 minutes. Immerse yourself completely until the alarm rings.</p></div></div>
+            <div class="info-step"><span class="info-step-num">03</span><div class="info-step-text"><strong>Take a Breath</strong><p>Take a 5-minute break to recharge. Stretch, move, or grab some water.</p></div></div>
+            <div class="info-step"><span class="info-step-num">04</span><div class="info-step-text"><strong>Deep Reset</strong><p>After 4 sessions, take a longer 15-30 minute break to fully reset your mind.</p></div></div>
             <button class="save-btn" onclick="closeModal('info-modal')">Got it</button>
         </div>
     </div>
@@ -532,7 +442,25 @@
         </div>
     </section>
 
-    <script>
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mini-pomodoro';
+
+        let user = null;
+        let unsubscribeTimer = null;
+        let unsubscribeTasks = null;
+        let unsubscribeSettings = null;
+
+        // Shared State
         const MODES = {
             work: { time: 25 * 60, color: '#ef4444', btnClass: 'work-btn', glow: 'rgba(239, 68, 68, 0.4)' },
             short: { time: 5 * 60, color: '#22c55e', btnClass: 'short-btn', glow: 'rgba(34, 197, 94, 0.4)' },
@@ -544,20 +472,80 @@
         let timerId = null;
         let sessionsCompleted = 0;
         let tasks = [];
-        
+        let isRunning = false;
+
+        // DOM Elements
         const circle = document.getElementById('progress-circle');
         const track = document.getElementById('progress-track');
         const startBtn = document.getElementById('start-btn');
         const restartBtn = document.getElementById('restart-btn-ui');
-        const digitSpans = {
-            m1: document.getElementById('m1'), m2: document.getElementById('m2'),
-            s1: document.getElementById('s1'), s2: document.getElementById('s2')
-        };
-        
+        const digitSpans = { m1: document.getElementById('m1'), m2: document.getElementById('m2'), s1: document.getElementById('s1'), s2: document.getElementById('s2') };
         const radius = circle.r.baseVal.value;
         const circumference = 2 * Math.PI * radius;
         circle.style.strokeDasharray = `${circumference} ${circumference}`;
-        circle.style.strokeDashoffset = circumference; 
+
+        // Initialize Auth
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        };
+
+        onAuthStateChanged(auth, (u) => {
+            user = u;
+            if (user) setupRealtimeSync();
+        });
+
+        initAuth();
+
+        function setupRealtimeSync() {
+            // Rule 1: Correct paths
+            const stateDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'state', 'current');
+            const settingsDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'current');
+            const tasksColl = collection(db, 'artifacts', appId, 'users', user.uid, 'tasks');
+
+            // Listen for State (Timer)
+            unsubscribeTimer = onSnapshot(stateDoc, (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    currentMode = data.mode || 'work';
+                    sessionsCompleted = data.sessionsCompleted || 0;
+                    document.getElementById('session-count').innerText = sessionsCompleted;
+                    
+                    if (data.isRunning) {
+                        const elapsedSinceSync = Math.floor((Date.now() - data.lastSyncTime) / 1000);
+                        timeLeft = Math.max(0, data.timeLeftAtSync - elapsedSinceSync);
+                        startTimerLoop();
+                    } else {
+                        timeLeft = data.timeLeftAtSync ?? MODES[currentMode].time;
+                        stopTimerLoop();
+                    }
+                    updateDisplay();
+                    updateModeUI(currentMode);
+                }
+            }, (err) => console.error("Timer Sync Error:", err));
+
+            // Listen for Tasks
+            unsubscribeTasks = onSnapshot(tasksColl, (snap) => {
+                tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderTasks();
+            }, (err) => console.error("Tasks Sync Error:", err));
+
+            // Listen for Settings
+            unsubscribeSettings = onSnapshot(settingsDoc, (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    MODES.work.time = (data.work || 25) * 60;
+                    MODES.short.time = (data.short || 5) * 60;
+                    MODES.long.time = (data.long || 15) * 60;
+                    if (!isRunning) resetTimer(false); // Update display if not running
+                }
+            });
+        }
+
+        // --- Core Logic ---
 
         function updateDisplay(isTick = false) {
             const minutes = Math.floor(timeLeft / 60);
@@ -568,66 +556,158 @@
 
             for (const key in digitSpans) {
                 const span = digitSpans[key];
-                const newValue = newDigits[key];
-                if (span.innerText !== newValue) {
+                if (span.innerText !== newDigits[key]) {
                     if (isTick) {
                         span.classList.remove('animate-tick');
                         void span.offsetWidth; 
                         span.classList.add('animate-tick');
                     }
-                    span.innerText = newValue;
+                    span.innerText = newDigits[key];
                 }
             }
-            document.title = `${mStr}:${sStr} | ZenFocus`;
+            document.title = `${mStr}:${sStr} | Mini PomoDoro`;
             const totalTime = MODES[currentMode].time;
             circle.style.strokeDashoffset = (timeLeft / totalTime) * circumference;
             document.documentElement.style.setProperty('--glow-color', MODES[currentMode].glow);
             document.documentElement.style.setProperty('--current-accent', MODES[currentMode].color);
         }
 
-        function toggleTimer() {
-            if (timerId) {
-                clearInterval(timerId); timerId = null;
-                startBtn.innerText = 'RESUME';
-            } else {
-                timerId = setInterval(() => {
-                    timeLeft--; updateDisplay(true);
-                    if (timeLeft <= 0) handleTimerComplete();
-                }, 1000);
-                startBtn.innerText = 'PAUSE';
-            }
+        async function syncState(running, manualTime = null) {
+            if (!user) return;
+            const stateDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'state', 'current');
+            await setDoc(stateDoc, {
+                isRunning: running,
+                mode: currentMode,
+                timeLeftAtSync: manualTime !== null ? manualTime : timeLeft,
+                lastSyncTime: Date.now(),
+                sessionsCompleted: sessionsCompleted
+            });
         }
 
-        function handleTimerComplete() {
-            clearInterval(timerId); timerId = null;
+        function startTimerLoop() {
+            if (timerId) clearInterval(timerId);
+            isRunning = true;
+            startBtn.innerText = 'PAUSE';
+            timerId = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay(true);
+                } else {
+                    handleTimerComplete();
+                }
+            }, 1000);
+        }
+
+        function stopTimerLoop() {
+            if (timerId) clearInterval(timerId);
+            timerId = null;
+            isRunning = false;
+            startBtn.innerText = timeLeft < MODES[currentMode].time ? 'RESUME' : 'START';
+        }
+
+        window.toggleTimer = () => {
+            const newState = !isRunning;
+            syncState(newState);
+        };
+
+        async function handleTimerComplete() {
+            stopTimerLoop();
             if (currentMode === 'work') {
                 sessionsCompleted++;
-                document.getElementById('session-count').innerText = sessionsCompleted;
-                setMode('short');
-            } else { setMode('work'); }
+                currentMode = 'short';
+            } else {
+                currentMode = 'work';
+            }
+            await syncState(false, MODES[currentMode].time);
         }
 
-        function resetTimer() {
-            clearInterval(timerId); timerId = null;
+        window.resetTimer = (shouldSync = true) => {
+            stopTimerLoop();
             timeLeft = MODES[currentMode].time;
-            startBtn.innerText = 'START';
+            if (shouldSync) syncState(false, timeLeft);
             updateDisplay();
-        }
+        };
 
-        function setMode(mode) {
+        window.setMode = (mode) => {
             currentMode = mode;
             timeLeft = MODES[mode].time;
+            syncState(false, timeLeft);
+        };
+
+        function updateModeUI(mode) {
             circle.style.stroke = track.style.stroke = MODES[mode].color;
             startBtn.className = `action-btn start-btn ${MODES[mode].btnClass}`;
             restartBtn.className = `action-btn restart-btn ${MODES[mode].btnClass}`;
-            startBtn.innerText = 'START';
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`${mode}-btn`).classList.add('active');
-            clearInterval(timerId); timerId = null;
-            updateDisplay();
         }
 
-        function runRippleAnimation(event, color, flipCallback) {
+        // --- Modals & Settings ---
+        window.openModal = (id) => {
+            if (id === 'settings-modal') {
+                document.getElementById('input-work').value = MODES.work.time / 60;
+                document.getElementById('input-short').value = MODES.short.time / 60;
+                document.getElementById('input-long').value = MODES.long.time / 60;
+            }
+            document.getElementById(id).classList.add('active');
+        };
+
+        window.closeModal = (id) => { document.getElementById(id).classList.remove('active'); };
+
+        window.saveSettings = async () => {
+            const w = parseInt(document.getElementById('input-work').value);
+            const s = parseInt(document.getElementById('input-short').value);
+            const l = parseInt(document.getElementById('input-long').value);
+            if (isNaN(w) || isNaN(s) || isNaN(l) || w < 1 || s < 1 || l < 1) return;
+            
+            if (user) {
+                const settingsDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'current');
+                await setDoc(settingsDoc, { work: w, short: s, long: l });
+            }
+            closeModal('settings-modal');
+        };
+
+        // --- Tasks ---
+        window.handleTaskKey = async (e) => {
+            if (e.key === 'Enter') {
+                const val = e.target.value.trim();
+                if (val && user) {
+                    const tasksColl = collection(db, 'artifacts', appId, 'users', user.uid, 'tasks');
+                    await setDoc(doc(tasksColl), { text: val, completed: false, createdAt: Date.now() });
+                    e.target.value = '';
+                }
+            }
+        };
+
+        window.toggleTask = async (id, completed) => {
+            if (!user) return;
+            const taskDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'tasks', id);
+            await updateDoc(taskDoc, { completed: !completed });
+        };
+
+        window.deleteTask = async (id) => {
+            if (!user) return;
+            const taskDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'tasks', id);
+            await deleteDoc(taskDoc);
+        };
+
+        function renderTasks() {
+            const list = document.getElementById('task-list');
+            const sortedTasks = [...tasks].sort((a,b) => a.createdAt - b.createdAt);
+            list.innerHTML = sortedTasks.map(t => `
+                <div class="task-item ${t.completed ? 'completed' : ''}">
+                    <div class="checkbox-custom" onclick="toggleTask('${t.id}', ${t.completed})"></div>
+                    <span class="flex-grow font-semibold cursor-pointer text-sm" onclick="toggleTask('${t.id}', ${t.completed})">${t.text}</span>
+                    <button onclick="deleteTask('${t.id}')" class="delete-btn uppercase tracking-tighter">Remove</button>
+                </div>
+            `).join('');
+            const col = document.getElementById('tasks-column');
+            if (tasks.length > 0) col.classList.add('has-content');
+            else col.classList.remove('has-content');
+        }
+
+        // --- Theme ---
+        window.runRippleAnimation = (event, color, flipCallback) => {
             const ripple = document.getElementById('theme-ripple');
             const rect = event.currentTarget.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
@@ -649,9 +729,9 @@
                 ripple.style.transform = 'scale(0)';
                 ripple.style.zIndex = '-1';
             }, 850);
-        }
+        };
 
-        async function toggleTheme(event) {
+        window.toggleTheme = (event) => {
             const body = document.body;
             const isDarkMode = body.classList.contains('dark');
             const targetColor = isDarkMode ? '#ffffff' : '#0f172a';
@@ -666,68 +746,7 @@
                 }
                 updateDisplay();
             });
-        }
-
-        function openModal(id) {
-            if (id === 'settings-modal') {
-                document.getElementById('input-work').value = MODES.work.time / 60;
-                document.getElementById('input-short').value = MODES.short.time / 60;
-                document.getElementById('input-long').value = MODES.long.time / 60;
-            }
-            document.getElementById(id).classList.add('active');
-        }
-
-        function closeModal(id) { 
-            document.getElementById(id).classList.remove('active'); 
-        }
-
-        function closeSettingsIfClickOutside(e) { 
-            if (e.target.classList.contains('modal-overlay')) closeModal(e.target.id); 
-        }
-
-        function saveSettings() {
-            const w = parseInt(document.getElementById('input-work').value);
-            const s = parseInt(document.getElementById('input-short').value);
-            const l = parseInt(document.getElementById('input-long').value);
-            if (isNaN(w) || isNaN(s) || isNaN(l) || w < 1 || s < 1 || l < 1) return;
-            MODES.work.time = w * 60; MODES.short.time = s * 60; MODES.long.time = l * 60;
-            resetTimer(); closeModal('settings-modal');
-        }
-
-        function handleTaskKey(e) {
-            if (e.key === 'Enter') {
-                const val = e.target.value.trim();
-                if (val) {
-                    tasks.push({ id: Date.now(), text: val, completed: false });
-                    e.target.value = '';
-                    renderTasks();
-                }
-            }
-        }
-
-        function toggleTask(id) {
-            tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
-            renderTasks();
-        }
-
-        function deleteTask(id) {
-            tasks = tasks.filter(t => t.id !== id);
-            renderTasks();
-        }
-
-        function renderTasks() {
-            const list = document.getElementById('task-list');
-            list.innerHTML = tasks.map(t => `
-                <div class="task-item ${t.completed ? 'completed' : ''}">
-                    <div class="checkbox-custom" onclick="toggleTask(${t.id})"></div>
-                    <span class="flex-grow font-semibold cursor-pointer text-sm" onclick="toggleTask(${t.id})">${t.text}</span>
-                    <button onclick="deleteTask(${t.id})" class="delete-btn uppercase tracking-tighter">Remove</button>
-                </div>
-            `).join('');
-            const col = document.getElementById('tasks-column');
-            if (tasks.length > 0) col.classList.add('has-content');
-            else col.classList.remove('has-content');
-        }
+        };
 
         updateDisplay();
     </script>
