@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZenFocus | Pomodoro & Tasks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-work: #ef4444;
+            --accent-short: #22c55e;
+            --accent-long: #06b6d4;
+            --bg-color: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #94a3b8;
+            --toggle-bg: #f1f5f9;
+            --glow-color: rgba(239, 68, 68, 0.8);
+            --current-accent: #ef4444;
+        }
+
+        .dark {
+            --bg-color: #0f172a;
+            --text-main: #f1f5f9;
+            --text-muted: #64748b;
+            --toggle-bg: #1e293b;
+            --glow-color: rgba(239, 68, 68, 0.9);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            color: var(--text-main);
+            transition: background-color 0.5s ease, color 0.5s ease;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 6rem;
+            width: 90%;
+            max-width: 1100px;
+            align-items: start;
+        }
+
+        @media (max-width: 850px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                gap: 4rem;
+                padding-top: 5rem;
+            }
+        }
+
+        /* Timer Side */
+        .timer-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .mode-toggle-group {
+            background: var(--toggle-bg);
+            padding: 0.3rem;
+            border-radius: 9999px;
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            height: 42px;
+            align-items: center;
+        }
+
+        .mode-btn {
+            padding: 0.4rem 1.2rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .mode-btn.active {
+            background: var(--bg-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            color: var(--text-main);
+        }
+
+        .timer-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-ring {
+            position: absolute;
+            z-index: 10;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring__circle {
+            transition: stroke-dashoffset 1s linear, stroke 0.5s ease, filter 0.5s ease;
+            stroke-linecap: round;
+            stroke-width: 5; 
+            filter: drop-shadow(0 0 8px var(--glow-color)) drop-shadow(0 0 16px var(--glow-color));
+        }
+
+        .progress-ring__bg {
+            stroke-width: 5;
+            opacity: 0.15;
+            transition: stroke 0.5s ease;
+        }
+
+        .timer-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            font-size: 4.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            line-height: 1;
+            height: 1em;
+            white-space: nowrap;
+        }
+
+        .digit-box {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 0.65em; 
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .colon {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 0.28em; 
+            opacity: 0.8;
+            transform: translateY(-0.06em);
+        }
+
+        @keyframes seamless-glide {
+            0% { transform: translateY(-8px); opacity: 0; filter: blur(2px); }
+            100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+        }
+
+        .animate-tick {
+            animation: seamless-glide 0.35s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+        }
+
+        .controls-area {
+            display: flex;
+            gap: 1.25rem;
+            margin-top: 2rem;
+        }
+
+        .action-btn {
+            height: 52px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            box-shadow: 0 6px 15px -3px rgba(0, 0, 0, 0.15);
+        }
+
+        .start-btn { width: 135px; font-size: 0.85rem; letter-spacing: 0.08em; }
+        .restart-btn { width: 52px; }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--glow-color); }
+        .action-btn:active { transform: translateY(1px) scale(0.96); }
+
+        .work-btn { background-color: var(--accent-work); }
+        .short-btn { background-color: var(--accent-short); }
+        .long-btn { background-color: var(--accent-long); }
+
+        /* Task Column - Centering Logic */
+        .tasks-column {
+            width: 100%;
+            height: 480px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Center line of timer digits is offset by toggles + half circle */
+        .tasks-column:not(.has-content) .tasks-inner-wrapper {
+            transform: translateY(-16px); /* Precision optical center with digits */
+        }
+
+        .tasks-column.has-content {
+            justify-content: start;
+            padding-top: calc(42px + 2rem);
+        }
+
+        .tasks-inner-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            transition: all 0.5s ease;
+        }
+
+        .task-input {
+            background: var(--toggle-bg);
+            border: 2px solid transparent;
+            padding: 1rem 1.5rem;
+            border-radius: 1.25rem;
+            width: 100%;
+            font-weight: 600;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .task-input:focus {
+            border-color: var(--current-accent);
+            background: var(--bg-color);
+            box-shadow: 0 10px 30px -10px var(--glow-color);
+        }
+
+        .task-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.1rem 0;
+            border-bottom: 1px solid var(--toggle-bg);
+            animation: task-in 0.4s ease forwards;
+        }
+
+        @keyframes task-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .task-item:last-child { border-bottom: none; }
+        .task-item.completed span { text-decoration: line-through; opacity: 0.4; }
+
+        .checkbox-custom {
+            width: 24px;
+            height: 24px;
+            border-radius: 9px;
+            border: 2px solid var(--toggle-bg);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .completed .checkbox-custom { background-color: var(--current-accent); border-color: var(--current-accent); }
+        .completed .checkbox-custom::after {
+            content: '✓'; color: white; position: absolute; font-size: 13px; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+
+        /* Settings Modal Improvements */
+        #settings-modal {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px); z-index: 100;
+            display: none; align-items: center; justify-content: center;
+        }
+
+        .settings-card {
+            background: var(--bg-color); 
+            padding: 2.5rem; 
+            border-radius: 2.5rem; 
+            width: 90%; 
+            max-width: 380px; 
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            color: var(--text-main); /* Ensure text is visible in light mode */
+        }
+
+        .settings-input {
+            background: var(--toggle-bg);
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            outline: none;
+            border: 2px solid transparent;
+            color: var(--text-main);
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .settings-input:focus {
+            border-color: var(--current-accent);
+        }
+
+        .settings-label {
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 800;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        .save-btn {
+            width: 100%; padding: 1.1rem; border-radius: 1.2rem; background: var(--current-accent);
+            color: white; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; margin-top: 1rem;
+            box-shadow: 0 10px 20px -5px var(--glow-color);
+        }
+
+        /* Top controls fixed for visibility */
+        .top-controls {
+            position: fixed; top: 2rem; right: 2rem; display: flex; gap: 0.75rem; z-index: 50;
+        }
+
+        .icon-btn {
+            width: 42px; height: 42px; border-radius: 9999px; background: var(--toggle-bg);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer; color: var(--text-main);
+        }
+
+        .icon-btn:hover { transform: scale(1.1); background-color: var(--current-accent); color: white; box-shadow: 0 5px 15px var(--glow-color); }
+
+        .delete-btn { opacity: 0; transition: opacity 0.2s ease; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; cursor: pointer; }
+        .task-item:hover .delete-btn { opacity: 1; }
+        .delete-btn:hover { color: var(--accent-work); }
+
+        .session-counter { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 800; }
+    </style>
+</head>
+<body>
+
+    <div class="top-controls">
+        <button class="icon-btn" onclick="toggleTheme()" aria-label="Toggle Dark Mode">
+            <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path id="moon-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                <path id="sun-path" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707" />
+            </svg>
+        </button>
+        <button class="icon-btn" onclick="openSettings()" aria-label="Open Settings">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+        </button>
+    </div>
+
+    <div id="settings-modal" onclick="closeSettingsIfClickOutside(event)">
+        <div class="settings-card" onclick="event.stopPropagation()">
+            <h2 class="font-extrabold text-xl mb-6 tracking-tight text-center">Settings</h2>
+            <div class="space-y-4">
+                <div class="flex flex-col">
+                    <label class="settings-label">Work (min)</label>
+                    <input type="number" id="input-work" class="settings-input">
+                </div>
+                <div class="flex flex-col">
+                    <label class="settings-label">Short Break (min)</label>
+                    <input type="number" id="input-short" class="settings-input">
+                </div>
+                <div class="flex flex-col">
+                    <label class="settings-label">Long Break (min)</label>
+                    <input type="number" id="input-long" class="settings-input">
+                </div>
+            </div>
+            <button class="save-btn" onclick="saveSettings()">Apply</button>
+            <button class="mt-4 text-xs font-bold text-muted uppercase tracking-widest w-full text-center opacity-50 hover:opacity-100" onclick="closeSettings()">Cancel</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Left Side: Timer -->
+        <div class="timer-column">
+            <div class="mode-toggle-group">
+                <button onclick="setMode('work')" id="work-btn" class="mode-btn active">Work</button>
+                <button onclick="setMode('short')" id="short-btn" class="mode-btn">Short</button>
+                <button onclick="setMode('long')" id="long-btn" class="mode-btn">Long</button>
+            </div>
+
+            <div class="timer-container">
+                <svg class="progress-ring" width="280" height="280">
+                    <circle id="progress-track" class="progress-ring__bg" stroke="#ef4444" fill="transparent" r="130" cx="140" cy="140" />
+                    <circle id="progress-circle" class="progress-ring__circle" stroke="#ef4444" stroke-dasharray="816.8" stroke-dashoffset="816.8" fill="transparent" r="130" cx="140" cy="140" />
+                </svg>
+                <div id="timer-text" class="timer-display"><span id="m1" class="digit-box">2</span><span id="m2" class="digit-box">5</span><span class="colon">:</span><span id="s1" class="digit-box">0</span><span id="s2" class="digit-box">0</span></div>
+            </div>
+
+            <div class="controls-area">
+                <button id="start-btn" onclick="toggleTimer()" class="action-btn start-btn work-btn">START</button>
+                <button onclick="resetTimer()" class="action-btn restart-btn work-btn" id="restart-btn-ui" title="Restart Timer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                        <path d="M21 2v6h-6"></path>
+                        <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                        <path d="M3 22v-6h6"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="mt-8">
+                <div class="session-counter">Sessions: <span id="session-count" class="text-current">0</span></div>
+            </div>
+        </div>
+
+        <!-- Right Side: Tasks (Centered with Timer) -->
+        <div class="tasks-column" id="tasks-column">
+            <div class="tasks-inner-wrapper">
+                <input type="text" id="new-task" class="task-input" placeholder="What's your next goal?" onkeypress="handleTaskKey(event)">
+                <div id="task-list" class="task-list">
+                    <!-- Task items -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MODES = {
+            work: { time: 25 * 60, color: '#ef4444', btnClass: 'work-btn', glow: 'rgba(239, 68, 68, 0.8)' },
+            short: { time: 5 * 60, color: '#22c55e', btnClass: 'short-btn', glow: 'rgba(34, 197, 94, 0.8)' },
+            long: { time: 15 * 60, color: '#06b6d4', btnClass: 'long-btn', glow: 'rgba(6, 182, 212, 0.8)' }
+        };
+
+        let currentMode = 'work';
+        let timeLeft = MODES.work.time;
+        let timerId = null;
+        let sessionsCompleted = 0;
+        let tasks = [];
+        
+        const circle = document.getElementById('progress-circle');
+        const track = document.getElementById('progress-track');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn-ui');
+        const digitSpans = {
+            m1: document.getElementById('m1'), m2: document.getElementById('m2'),
+            s1: document.getElementById('s1'), s2: document.getElementById('s2')
+        };
+        
+        const radius = circle.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = circumference; 
+
+        function updateDisplay(isTick = false) {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const mStr = minutes.toString().padStart(2, '0');
+            const sStr = seconds.toString().padStart(2, '0');
+            const newDigits = { m1: mStr[0], m2: mStr[1], s1: sStr[0], s2: sStr[1] };
+
+            for (const key in digitSpans) {
+                const span = digitSpans[key];
+                const newValue = newDigits[key];
+                if (span.innerText !== newValue) {
+                    if (isTick) {
+                        span.classList.remove('animate-tick');
+                        void span.offsetWidth; 
+                        span.classList.add('animate-tick');
+                    }
+                    span.innerText = newValue;
+                }
+            }
+            document.title = `${mStr}:${sStr} | ZenFocus`;
+            const totalTime = MODES[currentMode].time;
+            circle.style.strokeDashoffset = (timeLeft / totalTime) * circumference;
+            document.documentElement.style.setProperty('--glow-color', MODES[currentMode].glow);
+            document.documentElement.style.setProperty('--current-accent', MODES[currentMode].color);
+        }
+
+        function toggleTimer() {
+            if (timerId) {
+                clearInterval(timerId); timerId = null;
+                startBtn.innerText = 'RESUME';
+            } else {
+                timerId = setInterval(() => {
+                    timeLeft--; updateDisplay(true);
+                    if (timeLeft <= 0) handleTimerComplete();
+                }, 1000);
+                startBtn.innerText = 'PAUSE';
+            }
+        }
+
+        function handleTimerComplete() {
+            clearInterval(timerId); timerId = null;
+            if (currentMode === 'work') {
+                sessionsCompleted++;
+                document.getElementById('session-count').innerText = sessionsCompleted;
+                setMode('short');
+            } else { setMode('work'); }
+        }
+
+        function resetTimer() {
+            clearInterval(timerId); timerId = null;
+            timeLeft = MODES[currentMode].time;
+            startBtn.innerText = 'START';
+            updateDisplay();
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            timeLeft = MODES[mode].time;
+            circle.style.stroke = track.style.stroke = MODES[mode].color;
+            startBtn.className = `action-btn start-btn ${MODES[mode].btnClass}`;
+            restartBtn.className = `action-btn restart-btn ${MODES[mode].btnClass}`;
+            startBtn.innerText = 'START';
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`${mode}-btn`).classList.add('active');
+            clearInterval(timerId); timerId = null;
+            updateDisplay();
+        }
+
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark');
+            const moon = document.getElementById('moon-path');
+            const sun = document.getElementById('sun-path');
+            if (isDark) { moon.classList.add('hidden'); sun.classList.remove('hidden'); }
+            else { moon.classList.remove('hidden'); sun.classList.add('hidden'); }
+            updateDisplay();
+        }
+
+        const modal = document.getElementById('settings-modal');
+        function openSettings() {
+            document.getElementById('input-work').value = MODES.work.time / 60;
+            document.getElementById('input-short').value = MODES.short.time / 60;
+            document.getElementById('input-long').value = MODES.long.time / 60;
+            modal.style.display = 'flex';
+        }
+        function closeSettings() { modal.style.display = 'none'; }
+        function closeSettingsIfClickOutside(e) { if (e.target === modal) closeSettings(); }
+        function saveSettings() {
+            const w = parseInt(document.getElementById('input-work').value);
+            const s = parseInt(document.getElementById('input-short').value);
+            const l = parseInt(document.getElementById('input-long').value);
+            if (isNaN(w) || isNaN(s) || isNaN(l) || w < 1 || s < 1 || l < 1) return;
+            MODES.work.time = w * 60; MODES.short.time = s * 60; MODES.long.time = l * 60;
+            resetTimer(); closeSettings();
+        }
+
+        function handleTaskKey(e) {
+            if (e.key === 'Enter') {
+                const val = e.target.value.trim();
+                if (val) {
+                    tasks.push({ id: Date.now(), text: val, completed: false });
+                    e.target.value = '';
+                    renderTasks();
+                }
+            }
+        }
+
+        function toggleTask(id) {
+            tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+            renderTasks();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('task-list');
+            list.innerHTML = tasks.map(t => `
+                <div class="task-item ${t.completed ? 'completed' : ''}">
+                    <div class="checkbox-custom" onclick="toggleTask(${t.id})"></div>
+                    <span class="flex-grow font-semibold cursor-pointer text-sm" onclick="toggleTask(${t.id})">${t.text}</span>
+                    <button onclick="deleteTask(${t.id})" class="delete-btn uppercase tracking-tighter">Remove</button>
+                </div>
+            `).join('');
+
+            const col = document.getElementById('tasks-column');
+            if (tasks.length > 0) {
+                col.classList.add('has-content');
+            } else {
+                col.classList.remove('has-content');
+            }
+        }
+
+        updateDisplay();
+    </script>
+</body>
+</html>
