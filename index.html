@@ -274,7 +274,7 @@
             overflow-y: auto; 
             padding: 0.5rem; 
             margin: 0 -0.5rem;
-            position: relative; /* Essential for coordinate calculation */
+            position: relative; 
         }
 
         .task-item {
@@ -354,11 +354,16 @@
         .save-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 0 12px 0px var(--glow-color), 0 6px 20px 2px var(--glow-color); }
 
         .top-controls { position: fixed; top: 2rem; right: 2rem; display: flex; gap: 0.75rem; z-index: 50; }
+        
+        /* Bottom Controls Wrapper */
+        .bottom-controls { position: fixed; bottom: 2rem; right: 2rem; z-index: 50; }
+
         .icon-btn {
             width: 42px; height: 42px; border-radius: 9999px; background: var(--toggle-bg);
             display: flex; align-items: center; justify-content: center;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer; color: var(--text-main);
+            border: none;
         }
 
         .icon-btn:hover { transform: scale(1.1); background-color: var(--current-accent); color: white; box-shadow: 0 5px 15px var(--glow-color); }
@@ -371,6 +376,7 @@
 
     <div id="theme-ripple"></div>
 
+    <!-- Top Navigation Controls -->
     <div class="top-controls">
         <button class="icon-btn" onclick="openModal('info-modal')" aria-label="How Pomodoro Works">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -387,6 +393,16 @@
             <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path id="moon-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 <path id="sun-path" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Bottom Full Screen Control -->
+    <div class="bottom-controls">
+        <button id="fullscreen-btn" class="icon-btn" onclick="toggleFullScreen()" aria-label="Toggle Full Screen">
+            <svg id="fullscreen-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <!-- Expand Icon -->
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
             </svg>
         </button>
     </div>
@@ -533,7 +549,6 @@
             }, (err) => console.error("Timer Sync Error:", err));
 
             unsubscribeTasks = onSnapshot(tasksColl, (snap) => {
-                // FLIP START: Capture old positions
                 const list = document.getElementById('task-list');
                 const oldPositions = new Map();
                 list.querySelectorAll('.task-item').forEach(el => {
@@ -541,26 +556,20 @@
                 });
 
                 tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                
-                // Render new state
                 renderTasks();
 
-                // FLIP PLAY: Animate to new positions
                 requestAnimationFrame(() => {
                     list.querySelectorAll('.task-item').forEach(el => {
                         const id = el.dataset.id;
                         const oldRect = oldPositions.get(id);
-                        if (!oldRect) return; // New item, ignore reorder anim
+                        if (!oldRect) return; 
 
                         const newRect = el.getBoundingClientRect();
                         const deltaY = oldRect.top - newRect.top;
 
                         if (deltaY !== 0) {
-                            // Invert
                             el.style.transition = 'none';
                             el.style.transform = `translateY(${deltaY}px)`;
-                            
-                            // Play
                             requestAnimationFrame(() => {
                                 el.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
                                 el.style.transform = '';
@@ -783,6 +792,31 @@
                 updateDisplay();
             });
         };
+
+        // --- Full Screen Logic ---
+        window.toggleFullScreen = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        };
+
+        // Sync Full Screen Icon on change
+        document.addEventListener('fullscreenchange', () => {
+            const icon = document.getElementById('fullscreen-icon');
+            if (document.fullscreenElement) {
+                // Exit Full Screen Icon (Minimize)
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9l-5-5m0 0h4m-4 0v4m11 0V4m0 0h-4m4 0l-5 5M9 15l-5 5m0 0h4m-4 0v-4m11 0l-5-5m5 5v-4m0 4h-4" />';
+            } else {
+                // Enter Full Screen Icon (Expand)
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />';
+            }
+        });
 
         updateDisplay();
     </script>
