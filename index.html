@@ -15,7 +15,7 @@
             --text-main: #1e293b;
             --text-muted: #94a3b8;
             --toggle-bg: #f1f5f9;
-            --glow-color: rgba(239, 68, 68, 0.8);
+            --glow-color: rgba(239, 68, 68, 0.4);
             --current-accent: #ef4444;
         }
 
@@ -24,26 +24,47 @@
             --text-main: #f1f5f9;
             --text-muted: #64748b;
             --toggle-bg: #1e293b;
-            --glow-color: rgba(239, 68, 68, 0.9);
+            --glow-color: rgba(239, 68, 68, 0.5);
         }
 
         body {
             background-color: var(--bg-color);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
             color: var(--text-main);
-            transition: background-color 0.5s ease, color 0.5s ease;
-            overflow-x: hidden;
+            transition: color 0.3s ease, background-color 0.5s ease;
+            overflow: hidden;
+        }
+
+        #theme-ripple {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5; 
+            transform: scale(0);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+        }
+
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
         }
 
         .app-container {
+            position: relative;
+            z-index: 10;
             display: grid;
             grid-template-columns: 1.2fr 1fr;
-            gap: 6rem;
+            gap: 6.5rem;
             width: 90%;
             max-width: 1100px;
             align-items: start;
@@ -57,7 +78,6 @@
             }
         }
 
-        /* Timer Side */
         .timer-column {
             display: flex;
             flex-direction: column;
@@ -66,30 +86,46 @@
 
         .mode-toggle-group {
             background: var(--toggle-bg);
-            padding: 0.3rem;
+            padding: 0.35rem;
             border-radius: 9999px;
             display: flex;
             gap: 0.5rem;
             margin-bottom: 2rem;
-            height: 42px;
+            height: 46px;
             align-items: center;
+            transition: all 0.3s ease;
         }
 
         .mode-btn {
-            padding: 0.4rem 1.2rem;
+            padding: 0.5rem 1.4rem;
             border-radius: 9999px;
             font-weight: 700;
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             color: var(--text-muted);
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            position: relative;
         }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            color: var(--text-main);
+            letter-spacing: 0.1em;
+        }
+
+        #work-btn:hover:not(.active) { color: var(--accent-work); background: rgba(239, 68, 68, 0.08); }
+        #short-btn:hover:not(.active) { color: var(--accent-short); background: rgba(34, 197, 94, 0.08); }
+        #long-btn:hover:not(.active) { color: var(--accent-long); background: rgba(6, 182, 212, 0.08); }
 
         .mode-btn.active {
             background: var(--bg-color);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             color: var(--text-main);
+            transform: scale(1.05);
         }
 
         .timer-container {
@@ -155,13 +191,13 @@
             transform: translateY(-0.06em);
         }
 
-        @keyframes seamless-glide {
-            0% { transform: translateY(-8px); opacity: 0; filter: blur(2px); }
-            100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+        @keyframes slide-from-top {
+            0% { transform: translateY(-15px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
         }
 
         .animate-tick {
-            animation: seamless-glide 0.35s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+            animation: slide-from-top 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
         .controls-area {
@@ -192,7 +228,7 @@
         .short-btn { background-color: var(--accent-short); }
         .long-btn { background-color: var(--accent-long); }
 
-        /* Task Column - Centering Logic */
+        /* Modernized Task Column */
         .tasks-column {
             width: 100%;
             height: 480px; 
@@ -202,134 +238,188 @@
             transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Center line of timer digits is offset by toggles + half circle */
         .tasks-column:not(.has-content) .tasks-inner-wrapper {
-            transform: translateY(-16px); /* Precision optical center with digits */
+            transform: translateY(-28px); 
         }
 
         .tasks-column.has-content {
             justify-content: start;
-            padding-top: calc(42px + 2rem);
+            padding-top: 74px;
         }
 
         .tasks-inner-wrapper {
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.2rem;
             transition: all 0.5s ease;
         }
 
+        /* Minimal Modern Input */
         .task-input {
             background: var(--toggle-bg);
-            border: 2px solid transparent;
-            padding: 1rem 1.5rem;
-            border-radius: 1.25rem;
+            border: 1px solid transparent;
+            padding: 1.1rem 1.4rem;
+            border-radius: 1.5rem;
             width: 100%;
             font-weight: 600;
             color: var(--text-main);
             outline: none;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.95rem;
+            /* Subtler appearance */
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .task-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+
+        .task-input:hover {
+            background: var(--bg-color);
+            border-color: rgba(0,0,0,0.05);
         }
 
         .task-input:focus {
             border-color: var(--current-accent);
             background: var(--bg-color);
-            box-shadow: 0 10px 30px -10px var(--glow-color);
+            /* Refined minimal glow */
+            box-shadow: 0 0 0 4px var(--glow-color);
+            transform: translateY(-1px);
         }
 
         .task-list {
-            max-height: 300px;
+            max-height: 320px;
             overflow-y: auto;
-            padding-right: 0.5rem;
+            padding: 0.5rem;
+            margin: 0 -0.5rem;
         }
 
         .task-item {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            padding: 1.1rem 0;
-            border-bottom: 1px solid var(--toggle-bg);
-            animation: task-in 0.4s ease forwards;
+            gap: 1.2rem;
+            padding: 1rem 0.5rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            animation: task-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .task-item:hover {
+            background: var(--toggle-bg);
         }
 
         @keyframes task-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
-        .task-item:last-child { border-bottom: none; }
         .task-item.completed span { text-decoration: line-through; opacity: 0.4; }
 
         .checkbox-custom {
-            width: 24px;
-            height: 24px;
-            border-radius: 9px;
-            border: 2px solid var(--toggle-bg);
+            width: 22px;
+            height: 22px;
+            border-radius: 7px;
+            border: 2px solid var(--text-muted);
+            opacity: 0.4;
             cursor: pointer;
             transition: all 0.2s ease;
             flex-shrink: 0;
             position: relative;
         }
 
-        .completed .checkbox-custom { background-color: var(--current-accent); border-color: var(--current-accent); }
+        .task-item:hover .checkbox-custom {
+            opacity: 1;
+            border-color: var(--current-accent);
+        }
+
+        .completed .checkbox-custom { 
+            background-color: var(--current-accent); 
+            border-color: var(--current-accent); 
+            opacity: 1;
+        }
+
         .completed .checkbox-custom::after {
-            content: '✓'; color: white; position: absolute; font-size: 13px; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            content: '✓'; color: white; position: absolute; font-size: 11px; top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
 
-        /* Settings Modal Improvements */
-        #settings-modal {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px); z-index: 100;
-            display: none; align-items: center; justify-content: center;
+        /* Generic Modal Styles */
+        .modal-overlay {
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0, 0, 0, 0.3); 
+            backdrop-filter: blur(12px); 
+            z-index: 100;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+            overflow: visible; 
         }
 
-        .settings-card {
+        .modal-overlay.active { opacity: 1; visibility: visible; pointer-events: auto; }
+
+        .modal-card {
             background: var(--bg-color); 
             padding: 2.5rem; 
             border-radius: 2.5rem; 
             width: 90%; 
-            max-width: 380px; 
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-            color: var(--text-main); /* Ensure text is visible in light mode */
+            max-width: 420px; 
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+            color: var(--text-main);
+            transition: background-color 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(0.9) translateY(20px);
+            display: flex;
+            flex-direction: column;
+            overflow: visible; 
         }
+
+        .modal-overlay.active .modal-card { transform: scale(1) translateY(0); }
 
         .settings-input {
-            background: var(--toggle-bg);
-            padding: 0.75rem 1rem;
-            border-radius: 1rem;
-            font-weight: 700;
-            outline: none;
-            border: 2px solid transparent;
-            color: var(--text-main);
-            width: 100%;
-            transition: all 0.2s ease;
+            background: var(--toggle-bg); padding: 0.75rem 1rem; border-radius: 1rem; font-weight: 700; outline: none; border: 2px solid transparent; color: var(--text-main); width: 100%; transition: all 0.2s ease;
         }
+        .settings-input:focus { border-color: var(--current-accent); }
+        .settings-label { text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; font-size: 0.65rem; color: var(--text-muted); margin-bottom: 0.4rem; }
 
-        .settings-input:focus {
-            border-color: var(--current-accent);
-        }
-
-        .settings-label {
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-weight: 800;
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            margin-bottom: 0.4rem;
-        }
+        .info-step { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+        .info-step-num { color: var(--current-accent); font-weight: 800; font-size: 0.75rem; padding-top: 0.2rem; }
+        .info-step-text strong { display: block; font-size: 1rem; margin-bottom: 0.25rem; }
+        .info-step-text p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
 
         .save-btn {
-            width: 100%; padding: 1.1rem; border-radius: 1.2rem; background: var(--current-accent);
-            color: white; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; margin-top: 1rem;
-            box-shadow: 0 10px 20px -5px var(--glow-color);
+            display: block;
+            width: fit-content;
+            min-width: 154px; 
+            margin: 1.5rem auto 0 auto;
+            padding: 0.9rem 2.2rem; 
+            border-radius: 1.1rem;
+            background: var(--current-accent);
+            color: white;
+            font-weight: 800;
+            font-size: 0.95rem; 
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            box-shadow: 0 4px 10px -2px var(--glow-color);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            border: none;
+            outline: none;
+            position: relative;
+            z-index: 10;
         }
 
-        /* Top controls fixed for visibility */
-        .top-controls {
-            position: fixed; top: 2rem; right: 2rem; display: flex; gap: 0.75rem; z-index: 50;
+        .save-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 0 12px 0px var(--glow-color), 0 6px 20px 2px var(--glow-color);
         }
 
+        .top-controls { position: fixed; top: 2rem; right: 2rem; display: flex; gap: 0.75rem; z-index: 50; }
         .icon-btn {
             width: 42px; height: 42px; border-radius: 9999px; background: var(--toggle-bg);
             display: flex; align-items: center; justify-content: center;
@@ -338,103 +428,115 @@
         }
 
         .icon-btn:hover { transform: scale(1.1); background-color: var(--current-accent); color: white; box-shadow: 0 5px 15px var(--glow-color); }
-
         .delete-btn { opacity: 0; transition: opacity 0.2s ease; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; cursor: pointer; }
         .task-item:hover .delete-btn { opacity: 1; }
-        .delete-btn:hover { color: var(--accent-work); }
-
         .session-counter { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 800; }
     </style>
 </head>
 <body>
 
+    <div id="theme-ripple"></div>
+
     <div class="top-controls">
-        <button class="icon-btn" onclick="toggleTheme()" aria-label="Toggle Dark Mode">
-            <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path id="moon-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                <path id="sun-path" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707" />
+        <button class="icon-btn" onclick="openModal('info-modal')" aria-label="How Pomodoro Works">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
         </button>
-        <button class="icon-btn" onclick="openSettings()" aria-label="Open Settings">
+        <button class="icon-btn" onclick="openModal('settings-modal')" aria-label="Open Settings">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
         </button>
+        <button id="theme-toggle-btn" class="icon-btn" onclick="toggleTheme(event)" aria-label="Toggle Dark Mode">
+            <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path id="moon-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                <path id="sun-path" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707" />
+            </svg>
+        </button>
     </div>
 
-    <div id="settings-modal" onclick="closeSettingsIfClickOutside(event)">
-        <div class="settings-card" onclick="event.stopPropagation()">
+    <!-- Info Modal -->
+    <div id="info-modal" class="modal-overlay" onclick="closeModal('info-modal')">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <h2 class="font-extrabold text-2xl mb-8 tracking-tight text-center">How Pomodoro Works</h2>
+            <div class="info-step">
+                <span class="info-step-num">01</span>
+                <div class="info-step-text"><strong>Pick a Task</strong><p>Focus on one single goal at a time. Multi-tasking is the enemy of deep work.</p></div>
+            </div>
+            <div class="info-step">
+                <span class="info-step-num">02</span>
+                <div class="info-step-text"><strong>Start Timer</strong><p>Set the clock to 25 minutes. Immerse yourself completely until the alarm rings.</p></div>
+            </div>
+            <div class="info-step">
+                <span class="info-step-num">03</span>
+                <div class="info-step-text"><strong>Take a Breath</strong><p>Take a 5-minute break to recharge. Stretch, move, or grab some water.</p></div>
+            </div>
+            <div class="info-step">
+                <span class="info-step-num">04</span>
+                <div class="info-step-text"><strong>Deep Reset</strong><p>After 4 sessions, take a longer 15-30 minute break to fully reset your mind.</p></div>
+            </div>
+            <button class="save-btn" onclick="closeModal('info-modal')">Got it</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay" onclick="closeModal('settings-modal')">
+        <div class="modal-card" onclick="event.stopPropagation()">
             <h2 class="font-extrabold text-xl mb-6 tracking-tight text-center">Settings</h2>
             <div class="space-y-4">
-                <div class="flex flex-col">
-                    <label class="settings-label">Work (min)</label>
-                    <input type="number" id="input-work" class="settings-input">
-                </div>
-                <div class="flex flex-col">
-                    <label class="settings-label">Short Break (min)</label>
-                    <input type="number" id="input-short" class="settings-input">
-                </div>
-                <div class="flex flex-col">
-                    <label class="settings-label">Long Break (min)</label>
-                    <input type="number" id="input-long" class="settings-input">
-                </div>
+                <div class="flex flex-col"><label class="settings-label">Work (min)</label><input type="number" id="input-work" class="settings-input"></div>
+                <div class="flex flex-col"><label class="settings-label">Short Break (min)</label><input type="number" id="input-short" class="settings-input"></div>
+                <div class="flex flex-col"><label class="settings-label">Long Break (min)</label><input type="number" id="input-long" class="settings-input"></div>
             </div>
             <button class="save-btn" onclick="saveSettings()">Apply</button>
-            <button class="mt-4 text-xs font-bold text-muted uppercase tracking-widest w-full text-center opacity-50 hover:opacity-100" onclick="closeSettings()">Cancel</button>
+            <button class="mt-4 text-xs font-bold text-muted uppercase tracking-widest w-full text-center opacity-50 hover:opacity-100" onclick="closeModal('settings-modal')">Cancel</button>
         </div>
     </div>
 
-    <div class="app-container">
-        <!-- Left Side: Timer -->
-        <div class="timer-column">
-            <div class="mode-toggle-group">
-                <button onclick="setMode('work')" id="work-btn" class="mode-btn active">Work</button>
-                <button onclick="setMode('short')" id="short-btn" class="mode-btn">Short</button>
-                <button onclick="setMode('long')" id="long-btn" class="mode-btn">Long</button>
-            </div>
+    <section class="hero-section">
+        <div class="app-container">
+            <div class="timer-column">
+                <div class="mode-toggle-group">
+                    <button onclick="setMode('work')" id="work-btn" class="mode-btn active">Work</button>
+                    <button onclick="setMode('short')" id="short-btn" class="mode-btn">Short</button>
+                    <button onclick="setMode('long')" id="long-btn" class="mode-btn">Long</button>
+                </div>
 
-            <div class="timer-container">
-                <svg class="progress-ring" width="280" height="280">
-                    <circle id="progress-track" class="progress-ring__bg" stroke="#ef4444" fill="transparent" r="130" cx="140" cy="140" />
-                    <circle id="progress-circle" class="progress-ring__circle" stroke="#ef4444" stroke-dasharray="816.8" stroke-dashoffset="816.8" fill="transparent" r="130" cx="140" cy="140" />
-                </svg>
-                <div id="timer-text" class="timer-display"><span id="m1" class="digit-box">2</span><span id="m2" class="digit-box">5</span><span class="colon">:</span><span id="s1" class="digit-box">0</span><span id="s2" class="digit-box">0</span></div>
-            </div>
-
-            <div class="controls-area">
-                <button id="start-btn" onclick="toggleTimer()" class="action-btn start-btn work-btn">START</button>
-                <button onclick="resetTimer()" class="action-btn restart-btn work-btn" id="restart-btn-ui" title="Restart Timer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
-                        <path d="M21 2v6h-6"></path>
-                        <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
-                        <path d="M3 22v-6h6"></path>
+                <div class="timer-container">
+                    <svg class="progress-ring" width="280" height="280">
+                        <circle id="progress-track" class="progress-ring__bg" stroke="#ef4444" fill="transparent" r="130" cx="140" cy="140" />
+                        <circle id="progress-circle" class="progress-ring__circle" stroke="#ef4444" stroke-dasharray="816.8" stroke-dashoffset="816.8" fill="transparent" r="130" cx="140" cy="140" />
                     </svg>
-                </button>
+                    <div id="timer-text" class="timer-display"><span id="m1" class="digit-box">2</span><span id="m2" class="digit-box">5</span><span class="colon">:</span><span id="s1" class="digit-box">0</span><span id="s2" class="digit-box">0</span></div>
+                </div>
+
+                <div class="controls-area">
+                    <button id="start-btn" onclick="toggleTimer()" class="action-btn start-btn work-btn">START</button>
+                    <button onclick="resetTimer()" class="action-btn restart-btn work-btn" id="restart-btn-ui" title="Restart Timer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="mt-8"><div class="session-counter">Sessions: <span id="session-count" class="text-current">0</span></div></div>
             </div>
 
-            <div class="mt-8">
-                <div class="session-counter">Sessions: <span id="session-count" class="text-current">0</span></div>
-            </div>
-        </div>
-
-        <!-- Right Side: Tasks (Centered with Timer) -->
-        <div class="tasks-column" id="tasks-column">
-            <div class="tasks-inner-wrapper">
-                <input type="text" id="new-task" class="task-input" placeholder="What's your next goal?" onkeypress="handleTaskKey(event)">
-                <div id="task-list" class="task-list">
-                    <!-- Task items -->
+            <div class="tasks-column" id="tasks-column">
+                <div class="tasks-inner-wrapper">
+                    <input type="text" id="new-task" class="task-input" placeholder="What's your next goal?" onkeypress="handleTaskKey(event)">
+                    <div id="task-list" class="task-list"></div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <script>
         const MODES = {
-            work: { time: 25 * 60, color: '#ef4444', btnClass: 'work-btn', glow: 'rgba(239, 68, 68, 0.8)' },
-            short: { time: 5 * 60, color: '#22c55e', btnClass: 'short-btn', glow: 'rgba(34, 197, 94, 0.8)' },
-            long: { time: 15 * 60, color: '#06b6d4', btnClass: 'long-btn', glow: 'rgba(6, 182, 212, 0.8)' }
+            work: { time: 25 * 60, color: '#ef4444', btnClass: 'work-btn', glow: 'rgba(239, 68, 68, 0.4)' },
+            short: { time: 5 * 60, color: '#22c55e', btnClass: 'short-btn', glow: 'rgba(34, 197, 94, 0.4)' },
+            long: { time: 15 * 60, color: '#06b6d4', btnClass: 'long-btn', glow: 'rgba(6, 182, 212, 0.4)' }
         };
 
         let currentMode = 'work';
@@ -525,31 +627,71 @@
             updateDisplay();
         }
 
-        function toggleTheme() {
-            const isDark = document.body.classList.toggle('dark');
-            const moon = document.getElementById('moon-path');
-            const sun = document.getElementById('sun-path');
-            if (isDark) { moon.classList.add('hidden'); sun.classList.remove('hidden'); }
-            else { moon.classList.remove('hidden'); sun.classList.add('hidden'); }
-            updateDisplay();
+        function runRippleAnimation(event, color, flipCallback) {
+            const ripple = document.getElementById('theme-ripple');
+            const rect = event.currentTarget.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            ripple.style.transition = 'none';
+            ripple.style.transform = 'scale(0)';
+            ripple.style.left = `${centerX}px`;
+            ripple.style.top = `${centerY}px`;
+            ripple.style.backgroundColor = color;
+            ripple.style.zIndex = '5'; 
+            void ripple.offsetWidth; 
+            ripple.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            const radius = Math.max(window.innerWidth, window.innerHeight) * 2.5;
+            ripple.style.transform = `scale(${radius})`;
+            setTimeout(() => { if (flipCallback) flipCallback(); }, 150);
+            setTimeout(() => {
+                document.body.style.backgroundColor = color;
+                ripple.style.transition = 'none';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.zIndex = '-1';
+            }, 850);
         }
 
-        const modal = document.getElementById('settings-modal');
-        function openSettings() {
-            document.getElementById('input-work').value = MODES.work.time / 60;
-            document.getElementById('input-short').value = MODES.short.time / 60;
-            document.getElementById('input-long').value = MODES.long.time / 60;
-            modal.style.display = 'flex';
+        async function toggleTheme(event) {
+            const body = document.body;
+            const isDarkMode = body.classList.contains('dark');
+            const targetColor = isDarkMode ? '#ffffff' : '#0f172a';
+            runRippleAnimation(event, targetColor, () => {
+                body.classList.toggle('dark');
+                const moon = document.getElementById('moon-path');
+                const sun = document.getElementById('sun-path');
+                if (body.classList.contains('dark')) {
+                    moon.classList.add('hidden'); sun.classList.remove('hidden');
+                } else {
+                    moon.classList.remove('hidden'); sun.classList.add('hidden');
+                }
+                updateDisplay();
+            });
         }
-        function closeSettings() { modal.style.display = 'none'; }
-        function closeSettingsIfClickOutside(e) { if (e.target === modal) closeSettings(); }
+
+        function openModal(id) {
+            if (id === 'settings-modal') {
+                document.getElementById('input-work').value = MODES.work.time / 60;
+                document.getElementById('input-short').value = MODES.short.time / 60;
+                document.getElementById('input-long').value = MODES.long.time / 60;
+            }
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) { 
+            document.getElementById(id).classList.remove('active'); 
+        }
+
+        function closeSettingsIfClickOutside(e) { 
+            if (e.target.classList.contains('modal-overlay')) closeModal(e.target.id); 
+        }
+
         function saveSettings() {
             const w = parseInt(document.getElementById('input-work').value);
             const s = parseInt(document.getElementById('input-short').value);
             const l = parseInt(document.getElementById('input-long').value);
             if (isNaN(w) || isNaN(s) || isNaN(l) || w < 1 || s < 1 || l < 1) return;
             MODES.work.time = w * 60; MODES.short.time = s * 60; MODES.long.time = l * 60;
-            resetTimer(); closeSettings();
+            resetTimer(); closeModal('settings-modal');
         }
 
         function handleTaskKey(e) {
@@ -582,13 +724,9 @@
                     <button onclick="deleteTask(${t.id})" class="delete-btn uppercase tracking-tighter">Remove</button>
                 </div>
             `).join('');
-
             const col = document.getElementById('tasks-column');
-            if (tasks.length > 0) {
-                col.classList.add('has-content');
-            } else {
-                col.classList.remove('has-content');
-            }
+            if (tasks.length > 0) col.classList.add('has-content');
+            else col.classList.remove('has-content');
         }
 
         updateDisplay();
