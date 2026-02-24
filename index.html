@@ -475,23 +475,33 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mini-pomodoro';
+        // --- SAFE INITIALIZATION ---
+        // These variables are only available in the specific hosting environment.
+        // We use check logic to prevent the app from crashing in a standard browser.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mini-pomodoro-local';
+        let firebaseApp, auth, db;
+        let isFirebaseAvailable = false;
 
-        let user = null;
-        let unsubscribeTimer = null;
-        let unsubscribeTasks = null;
-        let unsubscribeSettings = null;
+        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+            try {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                firebaseApp = initializeApp(firebaseConfig);
+                auth = getAuth(firebaseApp);
+                db = getFirestore(firebaseApp);
+                isFirebaseAvailable = true;
+            } catch (e) {
+                console.warn("Firebase Init Failed. Fallback to local mode.", e);
+            }
+        }
 
+        // Shared State
         const MODES = {
             work: { time: 25 * 60, color: '#ef4444', btnClass: 'work-btn', glow: 'rgba(239, 68, 68, 0.4)' },
             short: { time: 5 * 60, color: '#22c55e', btnClass: 'short-btn', glow: 'rgba(34, 197, 94, 0.4)' },
             long: { time: 15 * 60, color: '#06b6d4', btnClass: 'long-btn', glow: 'rgba(6, 182, 212, 0.4)' }
         };
 
+        let user = null;
         let currentMode = 'work';
         let timeLeft = MODES.work.time;
         let timerId = null;
@@ -499,6 +509,7 @@
         let tasks = [];
         let isRunning = false;
 
+        // DOM Elements
         const circle = document.getElementById('progress-circle');
         const track = document.getElementById('progress-track');
         const startBtn = document.getElementById('start-btn');
@@ -508,27 +519,30 @@
         const circumference = 2 * Math.PI * radius;
         circle.style.strokeDasharray = `${circumference} ${circumference}`;
 
-        const initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-        };
-
-        onAuthStateChanged(auth, (u) => {
-            user = u;
-            if (user) setupRealtimeSync();
-        });
-
-        initAuth();
+        // --- Auth Setup ---
+        if (isFirebaseAvailable) {
+            const initAuth = async () => {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            };
+            onAuthStateChanged(auth, (u) => {
+                user = u;
+                if (user) setupRealtimeSync();
+            });
+            initAuth();
+        }
 
         function setupRealtimeSync() {
+            if (!isFirebaseAvailable || !user) return;
+
             const stateDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'state', 'current');
             const settingsDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'current');
             const tasksColl = collection(db, 'artifacts', appId, 'users', user.uid, 'tasks');
 
-            unsubscribeTimer = onSnapshot(stateDoc, (snap) => {
+            onSnapshot(stateDoc, (snap) => {
                 if (snap.exists()) {
                     const data = snap.data();
                     currentMode = data.mode || 'work';
@@ -546,9 +560,9 @@
                     updateDisplay();
                     updateModeUI(currentMode);
                 }
-            }, (err) => console.error("Timer Sync Error:", err));
+            });
 
-            unsubscribeTasks = onSnapshot(tasksColl, (snap) => {
+            onSnapshot(tasksColl, (snap) => {
                 const list = document.getElementById('task-list');
                 const oldPositions = new Map();
                 list.querySelectorAll('.task-item').forEach(el => {
@@ -563,10 +577,8 @@
                         const id = el.dataset.id;
                         const oldRect = oldPositions.get(id);
                         if (!oldRect) return; 
-
                         const newRect = el.getBoundingClientRect();
                         const deltaY = oldRect.top - newRect.top;
-
                         if (deltaY !== 0) {
                             el.style.transition = 'none';
                             el.style.transform = `translateY(${deltaY}px)`;
@@ -577,9 +589,9 @@
                         }
                     });
                 });
-            }, (err) => console.error("Tasks Sync Error:", err));
+            });
 
-            unsubscribeSettings = onSnapshot(settingsDoc, (snap) => {
+            onSnapshot(settingsDoc, (snap) => {
                 if (snap.exists()) {
                     const data = snap.data();
                     MODES.work.time = (data.work || 25) * 60;
@@ -589,6 +601,8 @@
                 }
             });
         }
+
+        // --- Core Logic ---
 
         function updateDisplay(isTick = false) {
             const minutes = Math.floor(timeLeft / 60);
@@ -616,7 +630,12 @@
         }
 
         async function syncState(running, manualTime = null) {
-            if (!user) return;
+            if (!isFirebaseAvailable || !user) {
+                // Handle Local State changes immediately if no sync
+                if (running) startTimerLoop();
+                else stopTimerLoop();
+                return;
+            }
             const stateDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'state', 'current');
             await setDoc(stateDoc, {
                 isRunning: running,
@@ -661,19 +680,22 @@
             } else {
                 currentMode = 'work';
             }
+            updateModeUI(currentMode);
             await syncState(false, MODES[currentMode].time);
         }
 
         window.resetTimer = (shouldSync = true) => {
             stopTimerLoop();
             timeLeft = MODES[currentMode].time;
-            if (shouldSync) syncState(false, timeLeft);
             updateDisplay();
+            if (shouldSync) syncState(false, timeLeft);
         };
 
         window.setMode = (mode) => {
             currentMode = mode;
             timeLeft = MODES[mode].time;
+            updateModeUI(mode);
+            updateDisplay();
             syncState(false, timeLeft);
         };
 
@@ -682,7 +704,8 @@
             startBtn.className = `action-btn start-btn ${MODES[mode].btnClass}`;
             restartBtn.className = `action-btn restart-btn ${MODES[mode].btnClass}`;
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`${mode}-btn`).classList.add('active');
+            const targetBtn = document.getElementById(`${mode}-btn`);
+            if (targetBtn) targetBtn.classList.add('active');
         }
 
         window.openModal = (id) => {
@@ -701,9 +724,13 @@
             const s = parseInt(document.getElementById('input-short').value);
             const l = parseInt(document.getElementById('input-long').value);
             if (isNaN(w) || isNaN(s) || isNaN(l) || w < 1 || s < 1 || l < 1) return;
-            if (user) {
+            
+            if (isFirebaseAvailable && user) {
                 const settingsDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'current');
                 await setDoc(settingsDoc, { work: w, short: s, long: l });
+            } else {
+                MODES.work.time = w * 60; MODES.short.time = s * 60; MODES.long.time = l * 60;
+                resetTimer(false);
             }
             closeModal('settings-modal');
         };
@@ -711,32 +738,44 @@
         window.handleTaskKey = async (e) => {
             if (e.key === 'Enter') {
                 const val = e.target.value.trim();
-                if (val && user) {
-                    const tasksColl = collection(db, 'artifacts', appId, 'users', user.uid, 'tasks');
-                    await setDoc(doc(tasksColl), { text: val, completed: false, createdAt: Date.now() });
+                if (val) {
+                    if (isFirebaseAvailable && user) {
+                        const tasksColl = collection(db, 'artifacts', appId, 'users', user.uid, 'tasks');
+                        await setDoc(doc(tasksColl), { text: val, completed: false, createdAt: Date.now() });
+                    } else {
+                        tasks.push({ id: Date.now().toString(), text: val, completed: false, createdAt: Date.now() });
+                        renderTasks();
+                    }
                     e.target.value = '';
                 }
             }
         };
 
         window.toggleTask = async (id, completed) => {
-            if (!user) return;
-            const taskDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'tasks', id);
-            await updateDoc(taskDoc, { completed: !completed });
+            if (isFirebaseAvailable && user) {
+                const taskDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'tasks', id);
+                await updateDoc(taskDoc, { completed: !completed });
+            } else {
+                const task = tasks.find(t => t.id === id);
+                if (task) task.completed = !completed;
+                renderTasks();
+            }
         };
 
         window.deleteTask = async (id) => {
-            if (!user) return;
-            const taskDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'tasks', id);
-            await deleteDoc(taskDoc);
+            if (isFirebaseAvailable && user) {
+                const taskDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'tasks', id);
+                await deleteDoc(taskDoc);
+            } else {
+                tasks = tasks.filter(t => t.id !== id);
+                renderTasks();
+            }
         };
 
         function renderTasks() {
             const list = document.getElementById('task-list');
             const sortedTasks = [...tasks].sort((a,b) => {
-                if (a.completed === b.completed) {
-                    return a.createdAt - b.createdAt;
-                }
+                if (a.completed === b.completed) return a.createdAt - b.createdAt;
                 return a.completed ? 1 : -1;
             });
 
@@ -793,27 +832,21 @@
             });
         };
 
-        // --- Full Screen Logic ---
         window.toggleFullScreen = () => {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => {
-                    console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                    console.error(`Error full-screen mode: ${err.message}`);
                 });
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+                if (document.exitFullscreen) document.exitFullscreen();
             }
         };
 
-        // Sync Full Screen Icon on change
         document.addEventListener('fullscreenchange', () => {
             const icon = document.getElementById('fullscreen-icon');
             if (document.fullscreenElement) {
-                // Exit Full Screen Icon (Minimize)
                 icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9l-5-5m0 0h4m-4 0v4m11 0V4m0 0h-4m4 0l-5 5M9 15l-5 5m0 0h4m-4 0v-4m11 0l-5-5m5 5v-4m0 4h-4" />';
             } else {
-                // Enter Full Screen Icon (Expand)
                 icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />';
             }
         });
