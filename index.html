@@ -15,9 +15,8 @@
             --text-main: #1e293b;
             --text-muted: #94a3b8;
             --toggle-bg: #f1f5f9;
-            /* Dynamic variables updated via JS */
             --current-accent: #ef4444;
-            --glow-color: rgba(239, 68, 68, 0.3);
+            --glow-color: rgba(239, 68, 68, 0.4);
         }
 
         .dark {
@@ -33,7 +32,6 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
             color: var(--text-main);
-            /* Smooth faded transition for mode and theme switching */
             transition: color 0.5s ease, background-color 0.5s ease;
             overflow: hidden;
         }
@@ -207,7 +205,6 @@
 
         .start-btn { width: 135px; font-size: 0.85rem; letter-spacing: 0.08em; }
         .restart-btn { width: 52px; }
-        /* Dynamic Start Button color handled by JS classes */
         .work-theme { background-color: var(--accent-work); }
         .short-theme { background-color: var(--accent-short); }
         .long-theme { background-color: var(--accent-long); }
@@ -237,7 +234,6 @@
             transition: all 0.5s ease;
         }
 
-        /* Modern Goal Input with Unified Dynamic Glow */
         .task-input {
             background: var(--toggle-bg);
             border: 1px solid transparent;
@@ -255,7 +251,6 @@
         .task-input:focus {
             border-color: var(--current-accent);
             background: var(--bg-color);
-            /* Soft radiant glow perfectly matching the current button mode */
             box-shadow: 0 0 20px 0px var(--glow-color);
             transform: translateY(-2px);
         }
@@ -316,7 +311,7 @@
         .modal-overlay.active { opacity: 1; visibility: visible; pointer-events: auto; }
 
         .modal-card {
-            background: var(--bg-color); padding: 2.5rem; border-radius: 2.5rem; width: 90%; max-width: 420px; 
+            background: var(--bg-color); padding: 2rem; border-radius: 2.2rem; width: 90%; max-width: 380px; 
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2); color: var(--text-main);
             transition: background-color 0.5s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             transform: scale(0.9) translateY(20px); display: flex; flex-direction: column; overflow: visible; 
@@ -324,67 +319,54 @@
 
         .modal-overlay.active .modal-card { transform: scale(1) translateY(0); }
 
+        .reveal-item { 
+            opacity: 0;
+            transform: translateY(-12px);
+        }
+
+        .modal-overlay.active .reveal-item {
+            animation: reveal-down 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes reveal-down {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Snappy staggered reveal */
+        .modal-overlay.active .reveal-item:nth-child(1) { animation-delay: 0s; }
+        .modal-overlay.active .reveal-item:nth-child(2) { animation-delay: 0.08s; }
+        .modal-overlay.active .reveal-item:nth-child(3) { animation-delay: 0.16s; }
+        .modal-overlay.active .reveal-item:nth-child(4) { animation-delay: 0.24s; }
+        .modal-overlay.active .reveal-item:nth-child(5) { animation-delay: 0.32s; }
+
+        .info-step { display: flex; gap: 1rem; margin-bottom: 1.1rem; }
+        .info-step-num { color: var(--current-accent); font-weight: 800; font-size: 0.62rem; padding-top: 0.28rem; min-width: 20px; letter-spacing: 0.05em; }
+        .info-step-text strong { display: block; font-size: 0.88rem; margin-bottom: 0.05rem; font-weight: 700; }
+        .info-step-text p { font-size: 0.76rem; color: var(--text-muted); line-height: 1.45; font-weight: 500; }
+
         .settings-input {
             background: var(--toggle-bg); padding: 0.75rem 1rem; border-radius: 1rem; font-weight: 700; outline: none; border: 2px solid transparent; color: var(--text-main); width: 100%; transition: all 0.2s ease;
         }
         .settings-input:focus { border-color: var(--current-accent); }
         .settings-label { text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; font-size: 0.65rem; color: var(--text-muted); margin-bottom: 0.4rem; }
 
-        /* Switch Slider */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 48px;
-            height: 24px;
-        }
-
+        .switch { position: relative; display: inline-block; width: 48px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: var(--toggle-bg);
-            transition: .4s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--toggle-bg); transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         input:checked + .slider { background-color: var(--current-accent); }
         input:checked + .slider:before { transform: translateX(24px); }
 
-        .settings-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
+        .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
 
         .save-btn {
-            display: block; width: fit-content; min-width: 154px; margin: 1.5rem auto 0 auto; padding: 0.9rem 2.2rem; 
-            border-radius: 1.1rem; background: var(--current-accent); color: white; font-weight: 800; font-size: 0.95rem; 
-            text-transform: uppercase; letter-spacing: 0.12em; 
-            box-shadow: 0 4px 15px -2px var(--glow-color);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            cursor: pointer; border: none; outline: none; position: relative; z-index: 10;
+            display: block; width: fit-content; min-width: 154px; margin: 1.25rem auto 0 auto; padding: 0.8rem 2.2rem; 
+            border-radius: 1.1rem; background: var(--current-accent); color: white; font-weight: 800; font-size: 0.85rem; 
+            text-transform: uppercase; letter-spacing: 0.12em; box-shadow: 0 4px 15px -2px var(--glow-color);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; border: none; outline: none; position: relative; z-index: 10;
         }
 
-        .save-btn:hover { 
-            transform: translateY(-2px) scale(1.03); 
-            box-shadow: 0 8px 25px var(--glow-color); 
-        }
+        .save-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 25px var(--glow-color); }
 
         .top-controls { position: fixed; top: 2rem; right: 2rem; display: flex; gap: 0.75rem; z-index: 50; }
         .bottom-controls { position: fixed; bottom: 2rem; right: 2rem; z-index: 50; }
@@ -404,7 +386,6 @@
 </head>
 <body>
 
-    <!-- Controls -->
     <div class="top-controls">
         <button class="icon-btn" onclick="openModal('info-modal')" aria-label="How Pomodoro Works">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -422,7 +403,8 @@
     <div class="bottom-controls">
         <button id="fullscreen-btn" class="icon-btn" onclick="toggleFullScreen()" aria-label="Toggle Full Screen">
             <svg id="fullscreen-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                <!-- Cleaner Expand/Maximize Path -->
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 00 2-2v-3M3 16v3a2 2 0 00 2 2h3" />
             </svg>
         </button>
     </div>
@@ -430,11 +412,11 @@
     <!-- Info Modal -->
     <div id="info-modal" class="modal-overlay" onclick="closeModal('info-modal')">
         <div class="modal-card" onclick="event.stopPropagation()">
-            <h2 class="font-extrabold text-2xl mb-8 tracking-tight text-center">How Pomodoro Works</h2>
-            <div class="info-step"><span class="info-step-num">01</span><div class="info-step-text"><strong>Pick a Task</strong><p>Focus on one single goal at a time. Multi-tasking is the enemy of deep work.</p></div></div>
-            <div class="info-step"><span class="info-step-num">02</span><div class="info-step-text"><strong>Start Timer</strong><p>Set the clock to 25 minutes. Immerse yourself completely until the alarm rings.</p></div></div>
-            <div class="info-step"><span class="info-step-num">03</span><div class="info-step-text"><strong>Take a Breath</strong><p>Take a 5-minute break to recharge. Stretch, move, or grab some water.</p></div></div>
-            <div class="info-step"><span class="info-step-num">04</span><div class="info-step-text"><strong>Deep Reset</strong><p>After 4 sessions, take a longer 15-30 minute break to fully reset your mind.</p></div></div>
+            <h2 class="font-extrabold text-xl mb-6 tracking-tight text-center reveal-item">How Pomodoro Works</h2>
+            <div class="info-step reveal-item"><span class="info-step-num">01</span><div class="info-step-text"><strong>Pick a Task</strong><p>Focus on one single goal. Multi-tasking is the enemy of deep work.</p></div></div>
+            <div class="info-step reveal-item"><span class="info-step-num">02</span><div class="info-step-text"><strong>Start Timer</strong><p>Set 25 minutes. Immerse yourself completely until the ring.</p></div></div>
+            <div class="info-step reveal-item"><span class="info-step-num">03</span><div class="info-step-text"><strong>Take a Breath</strong><p>A 5-minute break to recharge. Stretch or grab some water.</p></div></div>
+            <div class="info-step reveal-item"><span class="info-step-num">04</span><div class="info-step-text"><strong>Deep Reset</strong><p>After 4 sessions, take a longer 20-minute break to reset.</p></div></div>
             <button class="save-btn" onclick="closeModal('info-modal')">Got it</button>
         </div>
     </div>
@@ -443,28 +425,20 @@
     <div id="settings-modal" class="modal-overlay" onclick="closeModal('settings-modal')">
         <div class="modal-card" onclick="event.stopPropagation()">
             <h2 class="font-extrabold text-xl mb-6 tracking-tight text-center">Settings</h2>
-            
             <div class="space-y-4 mb-6">
                 <div class="flex flex-col"><label class="settings-label">Work (min)</label><input type="number" id="input-work" class="settings-input"></div>
                 <div class="flex flex-col"><label class="settings-label">Short Break (min)</label><input type="number" id="input-short" class="settings-input"></div>
                 <div class="flex flex-col"><label class="settings-label">Long Break (min)</label><input type="number" id="input-long" class="settings-input"></div>
             </div>
-
-            <!-- Dark Mode Toggle Row (Integrated, no borders) -->
             <div class="settings-row">
                 <span class="settings-label !mb-0 text-sm">Dark Mode</span>
-                <label class="switch">
-                    <input type="checkbox" id="dark-mode-toggle" onchange="toggleTheme(event)">
-                    <span class="slider"></span>
-                </label>
+                <label class="switch"><input type="checkbox" id="dark-mode-toggle" onchange="toggleTheme(event)"><span class="slider"></span></label>
             </div>
-
             <button class="save-btn" id="settings-save-btn" onclick="saveSettings()">Apply</button>
             <button class="mt-4 text-xs font-bold text-muted uppercase tracking-widest w-full text-center opacity-50 hover:opacity-100" onclick="closeModal('settings-modal')">Cancel</button>
         </div>
     </div>
 
-    <!-- Main Content -->
     <section class="hero-section">
         <div class="app-container">
             <div class="timer-column">
@@ -473,7 +447,6 @@
                     <button onclick="setMode('short')" id="short-btn" class="mode-btn">Short</button>
                     <button onclick="setMode('long')" id="long-btn" class="mode-btn">Long</button>
                 </div>
-
                 <div class="timer-container">
                     <svg class="progress-ring" width="280" height="280">
                         <circle id="progress-track" class="progress-ring__bg" stroke="#ef4444" fill="transparent" r="130" cx="140" cy="140" />
@@ -481,18 +454,14 @@
                     </svg>
                     <div id="timer-text" class="timer-display"><span id="m1" class="digit-box">2</span><span id="m2" class="digit-box">5</span><span class="colon">:</span><span id="s1" class="digit-box">0</span><span id="s2" class="digit-box">0</span></div>
                 </div>
-
                 <div class="controls-area">
                     <button id="start-btn" onclick="toggleTimer()" class="action-btn start-btn work-theme">START</button>
                     <button onclick="resetTimer()" class="action-btn restart-btn work-theme" id="restart-btn-ui" title="Restart Timer">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M21 2v6h-6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path><path d="M3 22v-6h6"></path>
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M21 2v6h-6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path><path d="M3 22v-6h6"></path></svg>
                     </button>
                 </div>
                 <div class="mt-8"><div class="session-counter">Sessions: <span id="session-count" class="text-current">0</span></div></div>
             </div>
-
             <div class="tasks-column" id="tasks-column">
                 <div class="tasks-inner-wrapper">
                     <input type="text" id="new-task" class="task-input" placeholder="What's your next goal?" onkeypress="handleTaskKey(event)">
@@ -565,13 +534,11 @@
                     currentMode = data.mode || 'work';
                     sessionsCompleted = data.sessionsCompleted || 0;
                     document.getElementById('session-count').innerText = sessionsCompleted;
-                    
                     const isDark = data.isDarkMode ?? false;
                     if (isDark !== document.body.classList.contains('dark')) {
                         document.body.classList.toggle('dark', isDark);
                         document.getElementById('dark-mode-toggle').checked = isDark;
                     }
-
                     if (data.isRunning) {
                         const elapsedSinceSync = Math.floor((Date.now() - data.lastSyncTime) / 1000);
                         timeLeft = Math.max(0, data.timeLeftAtSync - elapsedSinceSync);
@@ -624,7 +591,6 @@
             const mStr = minutes.toString().padStart(2, '0');
             const sStr = seconds.toString().padStart(2, '0');
             const newDigits = { m1: mStr[0], m2: mStr[1], s1: sStr[0], s2: sStr[1] };
-
             for (const key in digitSpans) {
                 const span = digitSpans[key];
                 if (span.innerText !== newDigits[key]) {
@@ -639,12 +605,9 @@
             document.title = `${mStr}:${sStr} | Mini PomoDoro`;
             const totalTime = MODES[currentMode].time;
             circle.style.strokeDashoffset = (timeLeft / totalTime) * circumference;
-            
-            // Unified Glow logic: Use current accent color with correct opacity for the theme
             const isDark = document.body.classList.contains('dark');
             const glowOpacity = isDark ? 0.6 : 0.4;
-            const glowValue = hexToRgba(MODES[currentMode].color, glowOpacity);
-            
+            const glowValue = hexToRgba(MODES[currentMode].color || '#ef4444', glowOpacity);
             document.documentElement.style.setProperty('--glow-color', glowValue);
             document.documentElement.style.setProperty('--current-accent', MODES[currentMode].color);
         }
@@ -663,14 +626,7 @@
                 return;
             }
             const stateDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'state', 'current');
-            await setDoc(stateDoc, {
-                isRunning: running,
-                mode: currentMode,
-                timeLeftAtSync: manualTime !== null ? manualTime : timeLeft,
-                lastSyncTime: Date.now(),
-                sessionsCompleted: sessionsCompleted,
-                isDarkMode: isDark
-            });
+            await setDoc(stateDoc, { isRunning: running, mode: currentMode, timeLeftAtSync: manualTime !== null ? manualTime : timeLeft, lastSyncTime: Date.now(), sessionsCompleted: sessionsCompleted, isDarkMode: isDark });
         }
 
         function startTimerLoop() {
@@ -717,14 +673,12 @@
 
         function updateModeUI(mode) {
             circle.style.stroke = track.style.stroke = MODES[mode].color;
-            // Clean up previous classes
             ['work-theme', 'short-theme', 'long-theme'].forEach(c => {
                 startBtn.classList.remove(c);
                 restartBtn.classList.remove(c);
             });
             startBtn.classList.add(MODES[mode].themeClass);
             restartBtn.classList.add(MODES[mode].themeClass);
-            
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
             const targetBtn = document.getElementById(`${mode}-btn`);
             if (targetBtn) targetBtn.classList.add('active');
@@ -815,19 +769,27 @@
             const body = document.body;
             const isDarkMode = event.target.checked;
             body.classList.toggle('dark', isDarkMode);
-            updateDisplay(); // Recalculate glow variables immediately
+            updateDisplay(); 
             syncState(isRunning); 
         };
 
         window.toggleFullScreen = () => {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-            else if (document.exitFullscreen) document.exitFullscreen();
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.error(err));
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
         };
 
         document.addEventListener('fullscreenchange', () => {
             const icon = document.getElementById('fullscreen-icon');
-            if (document.fullscreenElement) icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9l-5-5m0 0h4m-4 0v4m11 0V4m0 0h-4m4 0l-5 5M9 15l-5 5m0 0h4m-4 0v-4m11 0l-5-5m5 5v-4m0 4h-4" />';
-            else icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />';
+            if (document.fullscreenElement) {
+                // Cleaner Minimize Path
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h3a2 2 0 002-2V5M3 14h3a2 2 0 012 2v3m10-10h-3a2 2 0 01-2-2V5m7 9h-3a2 2 0 00-2 2v3" />';
+            } else {
+                // Cleaner Maximize Path
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 00 2-2v-3M3 16v3a2 2 0 00 2 2h3" />';
+            }
         });
 
         updateDisplay();
